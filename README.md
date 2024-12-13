@@ -1,14 +1,14 @@
 # Sistem Manajemen Rumah Sakit
 
-Proyek ini adalah **Sistem Manajemen Rumah Sakit** yang dibangun menggunakan PHP, HTML, CSS, dan JavaScript. Sistem ini mencakup modul untuk mengelola berbagai operasi rumah sakit, seperti pendaftaran pasien, manajemen dokter, dan tugas administratif. Sistem ini menggunakan database MySQL untuk penyimpanan data.
+Proyek ini adalah **Sistem Manajemen Rumah Sakit** yang dibangun menggunakan PHP, HTML, CSS, dan JavaScript. Sistem ini mencakup modul untuk mengelola berbagai operasi rumah sakit, seperti pendaftaran pasien, manajemen dokter, manajemen obat, manajemen poli dan lain-lain. Sistem ini menggunakan database MySQL untuk penyimpanan data.
 
 ---
 
 ## Fitur
 
 ### Modul Admin
-- Mengelola data dokter, pasien, dan departemen (poliklinik).
-- Menambah, memperbarui, atau menghapus catatan rumah sakit.
+- Fungsionalitas login untuk akses yang aman.
+- Mengelola(menambah, memperbarui, atau menghapus) data dokter, pasien, poli, dan obat.
 - Dapat diakses melalui folder `admin`.
 
 ### Modul Dokter
@@ -39,27 +39,27 @@ web_hospital-main/
 
 ## Instalasi
 
-1. Download 
+1. Download file web_hospital-main tersebut.
 
-2. Kemudian extract file tersebut
+2. Kemudian extract filenya.
 
 3. Jalankan server lokal (misalnya, XAMPP) dan tempatkan folder proyek di direktori root server (misalnya, `htdocs` untuk XAMPP).
 
-4. Atur database:
-   - Import file `db/db_hospital2.sql` ke dalam database MySQL Anda.
-   - Perbarui file `koneksi/koneksi.php` dengan kredensial database Anda:
+4. Buka file yang sudah anda extract di code editor anda gunakan seperti Visual Studio Code.
+
+5. Import file `db/db_hospital2.sql` ke dalam database MySQL Anda.
+
+6.Perbarui file `koneksi/koneksi.php` dengan kredensial database Anda:
      ```php
      $host = "localhost";
      $user = "root";
      $pass = "your_password";
      $db = "your_database_name";
      ```
-
-5. Akses aplikasi melalui browser web:
+7. Akses aplikasi melalui browser web:
    ```
    http://localhost/web_hospital-main/index.php
    ```
-
 ---
 
 ## Penggunaan
@@ -79,12 +79,6 @@ web_hospital-main/
 
 ---
 
-## Screenshot
-
-Sertakan screenshot dari halaman login, dashboard, dan fitur utama lainnya.
-
----
-
 ## Kontak
 
 Untuk pertanyaan atau dukungan, silakan hubungi:
@@ -92,4 +86,4 @@ Untuk pertanyaan atau dukungan, silakan hubungi:
 - **NIM**: A11.2021.13422
 - **Kelas**: WD03
 - **Email**: zackyfahdanahdli@gmail.com
-- **GitHub**: [your-username](https://github.com/your-username)
+- **Email Mhs**: 111202113422@mhs.dinus.ac.id
