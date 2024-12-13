@@ -12,19 +12,13 @@ Proyek ini adalah **Sistem Manajemen Rumah Sakit** yang dibangun menggunakan PHP
 - Dapat diakses melalui folder `admin`.
 
 ### Modul Dokter
-- Dashboard untuk mengelola janji temu dan catatan pasien.
 - Fungsionalitas login untuk akses yang aman.
 - Dapat diakses melalui folder `dokter`.
 
 ### Modul Pasien
 - Mendaftar sebagai pasien baru.
-- Mengakses riwayat medis pribadi dan janji temu.
+- Fungsionalitas login untuk akses yang aman.
 - Dapat diakses melalui folder `pasien`.
-
-### Fitur Umum
-- Sistem autentikasi untuk login/logout yang aman.
-- Database terpusat untuk menyimpan data rumah sakit.
-- Aset frontend untuk antarmuka yang responsif dan ramah pengguna.
 
 ---
 
@@ -49,7 +43,7 @@ web_hospital-main/
 
 2. Kemudian extract file tersebut
 
-3. Jalankan server lokal (misalnya, XAMPP, WAMP, atau MAMP) dan tempatkan folder proyek di direktori root server (misalnya, `htdocs` untuk XAMPP).
+3. Jalankan server lokal (misalnya, XAMPP) dan tempatkan folder proyek di direktori root server (misalnya, `htdocs` untuk XAMPP).
 
 4. Atur database:
    - Import file `db/db_hospital2.sql` ke dalam database MySQL Anda.
@@ -79,9 +73,9 @@ web_hospital-main/
 ## Teknologi yang Digunakan
 
 - **Backend**: PHP
-- **Frontend**: HTML, CSS, JavaScript
+- **Frontend**: HTML, CSS, JavaScript, Bootsrap
 - **Database**: MySQL
-- **Server**: Apache (via XAMPP/WAMP/MAMP)
+- **Server**: Apache (via XAMPP)
 
 ---
 
