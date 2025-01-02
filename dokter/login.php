@@ -1,29 +1,28 @@
 <?php
-// Start session
-session_start();
-require '../koneksi/koneksi.php'; // Koneksi ke database
+// login.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Error reporting untuk debugging
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require '../koneksi/koneksi.php'; // Koneksi ke database
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Menggunakan prepared statement untuk keamanan
-    $stmt = $koneksi->prepare("SELECT * FROM dokter WHERE username = ?");
+    $query = "SELECT * FROM dokter WHERE username = ?";
+    $stmt = $koneksi->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $dokter = $result->fetch_assoc();
-        // Verifikasi password dengan password_hash
+
         if (password_verify($password, $dokter['password'])) {
-            // Login berhasil
             $_SESSION['user'] = 'dokter';
             $_SESSION['username'] = $dokter['username'];
+            $_SESSION['dokter_id'] = $dokter['id'];
             header("Location: index.php");
             exit;
         } else {
@@ -51,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <h2>Login Dokter</h2>
         <?php if (isset($error)): ?>
             <div class="alert alert-danger">
-                <?php echo $error; ?>
+                <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
         <form method="POST">

@@ -1,29 +1,28 @@
 <?php
-// Start session
-session_start();
-require '../koneksi/koneksi.php'; // Koneksi ke database
+// login.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Error reporting untuk debugging
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require '../koneksi/koneksi.php'; // Koneksi ke database
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Menggunakan prepared statement untuk keamanan
-    $stmt = $koneksi->prepare("SELECT * FROM pasien WHERE username = ?");
+    $query = "SELECT * FROM pasien WHERE username = ?";
+    $stmt = $koneksi->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $pasien = $result->fetch_assoc();
-        // Verifikasi password dengan password_hash
+
         if (password_verify($password, $pasien['password'])) {
-            // Login berhasil
             $_SESSION['user'] = 'pasien';
             $_SESSION['username'] = $pasien['username'];
+            $_SESSION['pasien_id'] = $pasien['id'];
             header("Location: index.php");
             exit;
         } else {
@@ -44,14 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="assets/css/login_pasien.css">
 </head>
 <body>
-    <div class="login-container">
+<div class="login-container">
         <div class="icon-container">
-            <img src="assets/img/pasien-icon.png" alt="Pasien Icon" class="icon">
+            <img src="assets/img/pasien-icon.png" alt="Doctor Icon" class="icon">
         </div>
         <h2>Login Pasien</h2>
         <?php if (isset($error)): ?>
             <div class="alert alert-danger">
-                <?php echo $error; ?>
+                <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
         <form method="POST">

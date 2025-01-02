@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/style-admin.css">
-  <title>Dashboard User - Dinas Kependudukan dan Pencatatan Sipil Kota Semarang</title>
+  <title>Dashboard Dokter - Klinik Slamet Medika Kota Semarang</title>
   <style>
     body, html {
       margin: 0;
@@ -68,7 +68,7 @@
   <section class="head">
     <div class="header-opacity"></div>
     <div class="header-jumbotron">
-      <h4>Selamat Datang Di Dashboard User<br/> Klinik Slamet Medika<br/>Kota Semarang</h4>
+      <h4>Selamat Datang Di Dashboard Dokter<br/> Klinik Slamet Medika<br/>Kota Semarang</h4>
     </div>
   </section>
 </body>

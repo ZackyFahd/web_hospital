@@ -1,28 +1,34 @@
 ﻿<?php
 session_start();
 
-// Koneksi ke database
 include('../koneksi/koneksi.php');
 
-// Pastikan pasien sudah login
-if (!isset($_SESSION['user']) || $_SESSION['user'] !== 'pasien') {
+if (!isset($_SESSION['user']) || $_SESSION['user'] !== 'pasien' || !isset($_SESSION['pasien_id'])) {
     header('Location: login.php');
     exit;
 }
 
-// Ambil username dari session
 $username = $_SESSION['username'];
 
-// Ambil nama lengkap pasien dari database
-$query = "SELECT nama FROM pasien WHERE username = '$username'";
-$result = mysqli_query($koneksi, $query);
-if ($row = mysqli_fetch_assoc($result)) {
+$query = "SELECT nama FROM pasien WHERE username = ?";
+$stmt = $koneksi->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
     $nama_lengkap = $row['nama'];
-    // Ambil nama depan saja (dipisahkan berdasarkan spasi)
     $nama_depan = explode(' ', $nama_lengkap)[0];
 } else {
-    $nama_depan = "Pasien"; // Default jika nama tidak ditemukan
+    $nama_depan = "pasien";
 }
+$stmt->close();
+
+$halaman = isset($_GET['halaman']) ? htmlspecialchars($_GET['halaman']) : 'home';
+$allowed_pages = ['jadwal_praktek', 'antrian_pasien', 'daftar_pasien', 'home', 'logout'];
+
+$base_dir = __DIR__ . '/pages/';
+$page_file = $base_dir . $halaman . '.php';
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -67,10 +73,10 @@ if ($row = mysqli_fetch_assoc($result)) {
                     <a href="index.php"><i class="fa fa-dashboard"></i> Dashboard</a>
                 </li>
                 <li>
-                    <a href="index.php?halaman=rekam_medis"><i class="fa fa-folder"></i> Rekam Medis</a>
+                    <a href="index.php?halaman=daftar_periksa"><i class="fa fa-folder"></i> Daftar Periksa</a>
                 </li>
                 <li>
-                    <a href="index.php?halaman=jadwal_kontrol"><i class="fa fa-calendar"></i> Jadwal Kontrol</a>
+                    <a href="index.php?halaman=rekam_medis"><i class="fa fa-folder"></i> Rekam Medis</a>
                 </li>
                 <li>
                     <a href="index.php?halaman=logout"><i class="fa fa-sign-out"></i> Logout</a>
@@ -85,10 +91,10 @@ if ($row = mysqli_fetch_assoc($result)) {
         <div id="page-inner">
             <?php
             if (isset($_GET["halaman"])) {
-                if ($_GET["halaman"] == "rekam_medis") {
+                if ($_GET["halaman"] == "daftar_periksa") {
+                    include 'daftar_periksa.php';
+                } elseif ($_GET["halaman"] == "rekam_medis") {
                     include 'rekam_medis.php';
-                } elseif ($_GET["halaman"] == "jadwal_kontrol") {
-                    include 'jadwal_kontrol.php';
                 } elseif ($_GET["halaman"] == "logout") {
                     include 'logout.php';
                 } else {
