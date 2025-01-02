@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 alert('Pendaftaran gagal: ' + data.message);
             }
         }
-const idPoli = document.getElementById('poli').value;
+        const idPoli = document.getElementById('poli').value;
     </script>
 </head>
 <body onload="loadPoli()">
