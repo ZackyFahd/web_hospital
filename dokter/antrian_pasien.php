@@ -47,21 +47,22 @@ $result_obat = $koneksi->query($query_obat);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_daftar_poli = $_POST['id_daftar_poli'];
     $tanggal_periksa = $_POST['tanggal_periksa'];
-    $biaya_dokter = (int)$_POST['biaya_dokter'];
+    $biaya_dokter = 150000; // Biaya dokter tetap
     $obat_ids = $_POST['obat'] ?? [];
     $catatan = $_POST['catatan'];
 
     $total_biaya = $biaya_dokter;
 
-    // Hitung total biaya obat
-    foreach ($obat_ids as $id_obat) {
-        $query_obat = "SELECT harga FROM obat WHERE id_obat = ?";
-        $stmt_obat = $koneksi->prepare($query_obat);
-        $stmt_obat->bind_param("i", $id_obat);
-        $stmt_obat->execute();
-        $result_obat = $stmt_obat->get_result();
-        $obat = $result_obat->fetch_assoc();
-        $total_biaya += $obat['harga'];
+    if (!empty($obat_ids)) {
+        foreach ($obat_ids as $id_obat) {
+            $query_obat = "SELECT harga FROM obat WHERE id_obat = ?";
+            $stmt_obat = $koneksi->prepare($query_obat);
+            $stmt_obat->bind_param("i", $id_obat);
+            $stmt_obat->execute();
+            $result_obat = $stmt_obat->get_result();
+            $obat = $result_obat->fetch_assoc();
+            $total_biaya += (int) $obat['harga'];
+        }
     }
 
     // Simpan data ke tabel periksa
@@ -82,6 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_obat_periksa->execute();
     }
 
+    // Perbarui status di tabel daftar_poli
+    $update_status = "UPDATE daftar_poli SET status_periksa = 1 WHERE id = ?";
+    $stmt = $koneksi->prepare($update_status);
+    $stmt->bind_param("i", $id_daftar_poli);
+    $stmt->execute();
+
+    // Redirect kembali ke halaman antrian pasien
     header('Location: index.php?halaman=antrian_pasien');
     exit;
 }

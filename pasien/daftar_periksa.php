@@ -70,12 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_jadwal = (int)$_POST['id_jadwal'] ?? 0;
         $keluhan = $_POST['keluhan'] ?? '';
 
-        // Ambil nomor antrian terakhir di poli tersebut
+        // Ambil nomor antrian terakhir di jadwal tersebut
         $query_antrian = "
             SELECT MAX(no_antrian) AS no_antrian_terakhir 
             FROM daftar_poli 
-            WHERE id_jadwal = ?
+            WHERE id_jadwal = ? AND status_periksa = 0
         ";
+
         $stmt = $koneksi->prepare($query_antrian);
         $stmt->bind_param("i", $id_jadwal);
         $stmt->execute();
@@ -83,11 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $row = $result->fetch_assoc();
         $no_antrian_terakhir = $row['no_antrian_terakhir'] ?? 0;
 
+        // Jika tidak ada pasien yang belum diperiksa, mulai ulang dari 1
+        $no_antrian_baru = ($no_antrian_terakhir > 0) ? $no_antrian_terakhir + 1 : 1;
+
         // Tambahkan ke daftar periksa
-        $no_antrian_baru = $no_antrian_terakhir + 1;
         $query_daftar = "
-            INSERT INTO daftar_poli (id_pasien, id_jadwal, keluhan, no_antrian) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO daftar_poli (id_pasien, id_jadwal, keluhan, no_antrian, status_periksa) 
+            VALUES (?, ?, ?, ?, 0)
         ";
         $stmt = $koneksi->prepare($query_daftar);
         $stmt->bind_param("iisi", $id_pasien, $id_jadwal, $keluhan, $no_antrian_baru);
