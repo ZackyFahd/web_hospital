@@ -21,22 +21,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_jadwal'])) {
     $jam_selesai = $_POST['jam_selesai'];
 
     if (!empty($hari) && !empty($jam_mulai) && !empty($jam_selesai)) {
-        $query = "SELECT * FROM jadwal_periksa WHERE id_dokter = ? AND hari = ? 
-                  AND ((jam_mulai <= ? AND jam_selesai > ?) OR (jam_mulai < ? AND jam_selesai >= ?))";
-        $stmt = $koneksi->prepare($query);
-        $stmt->bind_param("isssss", $dokter_id, $hari, $jam_mulai, $jam_mulai, $jam_selesai, $jam_selesai);
-        $stmt->execute();
-        $jadwal_conflict = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        // Mengecek apakah dokter sudah memiliki jadwal pada hari yang sama
+        $query_check = "SELECT * FROM jadwal_periksa WHERE id_dokter = ? AND hari = ?";
+        $stmt_check = $koneksi->prepare($query_check);
+        $stmt_check->bind_param("is", $dokter_id, $hari);
+        $stmt_check->execute();
+        $existing_jadwal = $stmt_check->get_result()->fetch_assoc();
+        $stmt_check->close();
 
-        if (!$jadwal_conflict) {
-            $query = "INSERT INTO jadwal_periksa (id_dokter, hari, jam_mulai, jam_selesai, jadwal_aktif) 
-                      VALUES (?, ?, ?, ?, 0)";
-            $stmt = $koneksi->prepare($query);
-            $stmt->bind_param("isss", $dokter_id, $hari, $jam_mulai, $jam_selesai);
-            $stmt->execute();
-            $stmt->close();
-        }
+        // Jika dokter sudah memiliki jadwal pada hari tersebut
+        if ($existing_jadwal) {
+            $error_message = "Anda sudah memiliki jadwal pada hari $hari. Silakan pilih hari lain.";
+        } else {
+            // Jika tidak ada benturan, lanjutkan dengan menambah jadwal
+            $query_insert = "INSERT INTO jadwal_periksa (id_dokter, hari, jam_mulai, jam_selesai, jadwal_aktif) 
+                                VALUES (?, ?, ?, ?, 0)";
+            $stmt_insert = $koneksi->prepare($query_insert);
+            $stmt_insert->bind_param("isss", $dokter_id, $hari, $jam_mulai, $jam_selesai);
+            $stmt_insert->execute();
+            $stmt_insert->close();
+            $success_message = "Jadwal berhasil ditambahkan!";
+    }
     }
 }
 
@@ -81,27 +86,59 @@ $stmt->close();
     <title>Kelola Jadwal Praktek</title>
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f4f6f9;
         }
         .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .table thead {
+            background-color: #f1f1f1;
         }
     </style>
 </head>
 <body>
+
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Kelola Jadwal Praktek</h1>
+    <h1 class="text-center mb-4 text-primary">Kelola Jadwal Praktek</h1>
 
     <!-- Pesan -->
-    <?php if (isset($success_message)): ?>
-        <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
-    <?php elseif (isset($error_message)): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
-    <?php endif; ?>
+        <?php if (isset($success_message)): ?>
+            <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
+        <?php elseif (isset($error_message)): ?>
+            <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
+        <?php endif; ?>
+
 
     <!-- Form Tambah Jadwal -->
     <div class="card mb-4">
-        <div class="card-header bg-primary text-white">Tambah Jadwal Baru</div>
+        <div class="card-header">Tambah Jadwal Baru</div>
         <div class="card-body">
             <form method="POST">
                 <div class="mb-3">
@@ -125,55 +162,54 @@ $stmt->close();
                     <label for="jam_selesai" class="form-label">Jam Selesai</label>
                     <input type="time" class="form-control" id="jam_selesai" name="jam_selesai" required>
                 </div>
-                <button type="submit" name="add_jadwal" class="btn btn-primary">Tambah Jadwal</button>
+                <button type="submit" name="add_jadwal" class="btn btn-custom">Tambah Jadwal</button>
             </form>
         </div>
     </div>
 
     <!-- Tabel Jadwal -->
     <div class="card">
-        <div class="card-header bg-secondary text-white">Daftar Jadwal</div>
+        <div class="card-header">Daftar Jadwal</div>
         <div class="card-body">
             <table class="table table-bordered">
                 <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Hari</th>
-                    <th>Jam Mulai</th>
-                    <th>Jam Selesai</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
+                    <tr>
+                        <th>No</th>
+                        <th>Hari</th>
+                        <th>Jam Mulai</th>
+                        <th>Jam Selesai</th>
+                        <th>Aksi</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <?php if (empty($jadwal)): ?>
-                    <tr>
-                        <td colspan="6" class="text-center">Belum ada jadwal.</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($jadwal as $index => $j): ?>
+                    <?php if (empty($jadwal)): ?>
                         <tr>
-                            <td><?= $index + 1 ?></td>
-                            <td><?= htmlspecialchars($j['hari']) ?></td>
-                            <td><?= htmlspecialchars($j['jam_mulai']) ?></td>
-                            <td><?= htmlspecialchars($j['jam_selesai']) ?></td>
-                            <td><?= $j['jadwal_aktif'] ? "Aktif" : "Tidak Aktif" ?></td>
-                            <td>
-                                <?php if (!$j['jadwal_aktif']): ?>
-                                    <form method="POST" style="display:inline;">
-                                        <input type="hidden" name="jadwal_id" value="<?= $j['id'] ?>">
-                                        <button type="submit" name="activate_jadwal" class="btn btn-success btn-sm">Aktifkan</button>
-                                    </form>
-                                <?php endif; ?>
-                            </td>
+                            <td colspan="5" class="text-center">Belum ada jadwal.</td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <?php foreach ($jadwal as $index => $j): ?>
+                            <tr>
+                                <td><?= $index + 1 ?></td>
+                                <td><?= htmlspecialchars($j['hari']) ?></td>
+                                <td><?= htmlspecialchars($j['jam_mulai']) ?></td>
+                                <td><?= htmlspecialchars($j['jam_selesai']) ?></td>
+                                <td>
+                                    <?php if (!$j['jadwal_aktif']): ?>
+                                        <form method="POST" style="display:inline;">
+                                            <input type="hidden" name="jadwal_id" value="<?= $j['id'] ?>">
+                                            <button type="submit" name="activate_jadwal" class="btn btn-success btn-sm">Aktifkan</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
